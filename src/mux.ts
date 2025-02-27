@@ -141,17 +141,21 @@ export async function configToVideoStream(
             /* Need to find an integer ratio. First try 1001, as many common
              * framerates are x/1001 */
             const fr1001 = config.framerate * 1001;
-            if (fr1001 === ~~fr1001) {
+            if (Math.abs(fr1001 - ~~fr1001) <= 0.000001) {
                 timebaseNum = 1001;
                 timebaseDen = fr1001;
             } else {
                 /* Just look for a power of two. This will always work because
                  * of how floating point works. */
                 timebaseDen = config.framerate;
-                while (timebaseDen !== Math.floor(timebaseDen)) {
+                while (
+                    Math.abs(timebaseDen - Math.floor(timebaseDen)) >= 0.000001 &&
+                    timebaseDen < 1000000
+                ) {
                     timebaseNum *= 2;
                     timebaseDen *= 2;
                 }
+                timebaseDen = Math.floor(timebaseDen);
             }
         }
     }
